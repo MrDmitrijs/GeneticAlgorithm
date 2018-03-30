@@ -1,1 +1,1 @@
-web: java -jar target/GeneticAlgorithm.jar
+web: java -jar target/GeneticAlgorithm-1.0-SNAPSHOT.jar
