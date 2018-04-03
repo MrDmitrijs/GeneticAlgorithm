@@ -5,17 +5,15 @@ import java.util.LinkedList;
 public class EvolutionDetails {
 
     private LinkedList<Details> linkedDetailsList;
-    private boolean endFunction;
-    private int averageFitnessCount;
     private GeneticParameters geneticParameters;
-    private double averageFitnessFunction;
+    private LinkedList<String> listOfAverageFitnessFunction;
 
-    public double getAverageFitnessFunction() {
-        return averageFitnessFunction;
+    public LinkedList<String> getListOfAverageFitnessFunction() {
+        return listOfAverageFitnessFunction;
     }
 
-    public void setAverageFitnessFunction(double averageFitnessFunction) {
-        this.averageFitnessFunction = averageFitnessFunction;
+    public void setListOfAverageFitnessFunction(LinkedList<String> listOfAverageFitnessFunction) {
+        this.listOfAverageFitnessFunction = listOfAverageFitnessFunction;
     }
 
     public GeneticParameters getGeneticParameters() {
@@ -32,21 +30,5 @@ public class EvolutionDetails {
 
     public void setLinkedDetailsList(LinkedList<Details> linkedDetailsList) {
         this.linkedDetailsList = linkedDetailsList;
-    }
-
-    public boolean isEndFunction() {
-        return endFunction;
-    }
-
-    public void setEndFunction(boolean endFunction) {
-        this.endFunction = endFunction;
-    }
-
-    public int getAverageFitnessCount() {
-        return averageFitnessCount;
-    }
-
-    public void setAverageFitnessCount(int averageFitnessCount) {
-        this.averageFitnessCount = averageFitnessCount;
     }
 }

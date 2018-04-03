@@ -20,6 +20,8 @@ import static genetic.helper.Helper.getAverageFitnessFunction;
 import static genetic.helper.Helper.roundToTwoDecimal;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static java.lang.Math.abs;
+import static java.lang.String.valueOf;
 
 @Controller
 public class GeneticController {
@@ -38,9 +40,6 @@ public class GeneticController {
         final LinkedList<Details> linkedLists = initializeTable(numberOfPopulation);
         final EvolutionDetails evolutionDetails = new EvolutionDetails();
         evolutionDetails.setLinkedDetailsList(linkedLists);
-        evolutionDetails.setEndFunction(false);
-        evolutionDetails.setAverageFitnessCount(1);
-        evolutionDetails.setAverageFitnessFunction(getAverageFitnessFunction(linkedLists));
         saveIntoSession(httpServletRequest, evolutionDetails);
         return evolutionDetails;
     }
@@ -51,20 +50,32 @@ public class GeneticController {
         final EvolutionDetails evolutionDetailsFromTheSession = getPopulationFromTheSession(httpServletRequest);
         final GeneticParameters geneticParameters = new GeneticParameters(parseInt(httpServletRequest.getParameter("numberOfPopulation")),
                 parseDouble(httpServletRequest.getParameter("pCrossing")), parseDouble(httpServletRequest.getParameter("pMutation")));
-        final LinkedList<Details> details = makeAnEvolution(evolutionDetailsFromTheSession.getLinkedDetailsList(), geneticParameters);
-        evolutionDetailsFromTheSession.setLinkedDetailsList(details);
-        final double newAverageFitnessFunction = getAverageFitnessFunction(details);
-        double delta = roundToTwoDecimal(newAverageFitnessFunction - evolutionDetailsFromTheSession.getAverageFitnessFunction());
-
-        if ((delta < 0 ? delta * -1 : delta) <= 0.1) {
-            final int averageFitnessCount = evolutionDetailsFromTheSession.getAverageFitnessCount();
-            if (averageFitnessCount >= 3) {
-                evolutionDetailsFromTheSession.setEndFunction(true);
+        final LinkedList<String> listOfAverageFitnessFunction = new LinkedList<>();
+        LinkedList<Details> details = evolutionDetailsFromTheSession.getLinkedDetailsList();
+        listOfAverageFitnessFunction.add(valueOf(getAverageFitnessFunction(details)));
+        int averageFitnessCount = 0;
+        int count = 0;
+        do {
+            final double averageFitnessFunction = getAverageFitnessFunction(details);
+            details = makeAnEvolution(details, geneticParameters);
+            evolutionDetailsFromTheSession.setLinkedDetailsList(details);
+            final double newAverageFitnessFunction = getAverageFitnessFunction(details);
+            double delta = abs(roundToTwoDecimal(averageFitnessFunction - newAverageFitnessFunction));
+            if (delta <= 0.1) {
+                if (averageFitnessCount > 3) {
+                    listOfAverageFitnessFunction.add(valueOf(newAverageFitnessFunction));
+                    break;
+                } else {
+                    averageFitnessCount += 1;
+                }
             } else {
-                evolutionDetailsFromTheSession.setAverageFitnessCount(evolutionDetailsFromTheSession.getAverageFitnessCount() + 1);
+                if (averageFitnessCount > 0) averageFitnessCount = 0;
             }
-        }
-        evolutionDetailsFromTheSession.setAverageFitnessFunction(newAverageFitnessFunction);
+            listOfAverageFitnessFunction.add(valueOf(newAverageFitnessFunction));
+            count++;
+        } while (count <= 100000);
+        evolutionDetailsFromTheSession.setLinkedDetailsList(details);
+        evolutionDetailsFromTheSession.setListOfAverageFitnessFunction(listOfAverageFitnessFunction);
         saveIntoSession(httpServletRequest, evolutionDetailsFromTheSession);
         return evolutionDetailsFromTheSession;
     }

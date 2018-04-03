@@ -8,7 +8,7 @@ $(document).ready(function () {
     };
 
     var layout = {
-        title: 'Result',
+        title: 'Function',
         showlegend: false,
         autosize: false,
         width: 500,
@@ -44,15 +44,25 @@ $(document).ready(function () {
     });
 
 
-    var updateResultTable = function (step, dataResultAverageFitness) {
-        DATA_TABLE_SUMMARY.row.add([step, dataResultAverageFitness]);
+    var updateResultTable = function (dataResultAverageFitness) {
+        DATA_TABLE_SUMMARY.clear();
+        var i = 1;
+        var x = [];
+        var y = [];
+        dataResultAverageFitness.forEach(function (value) {
+            x.push(i);
+            y.push(value);
+            DATA_TABLE_SUMMARY.row.add([
+                i,
+                value
+            ]);
+            i++;
+        });
         DATA_TABLE_SUMMARY.draw();
-    };
 
-    var updateResultGraph = function (step, dataResultAverageFitness) {
         var AverageFitness = {
-            x: dataResultAverageFitness,
-            y: step,
+            x: x,
+            y: y,
             type: 'scatter'
         };
 
@@ -112,34 +122,20 @@ $(document).ready(function () {
     });
 
     var startGeneration = function () {
-        var endFunction = false;
-        var step = 1;
-        var resultDataX = [];
-        var resultDataY = [];
-        var dataK;
-        while (!endFunction) {
-            $.ajax({
-                url: 'startGeneration',
-                async: false,
-                data: {
-                    pCrossing: $('#pCrossing').val(),
-                    pMutation: $('#pMutation').val(),
-                    numberOfPopulation: $('#numberOfPopulation').val()
-                },
-                success: function (data) {
-                    // updateTableAndChart(data);
-                    // endFunction = data.endFunction;
-                    resultDataX.push(data.averageFitnessFunction);
-                    resultDataY.push(step);
-                    dataK = data;
-                    endFunction = data.endFunction;
-                    updateResultTable(step, data.averageFitnessFunction);
-                }
-            });
-            step++;
-        }
-        updateTableAndChart(dataK);
-        updateResultGraph(resultDataX, resultDataY);
+        $.ajax({
+            url: 'startGeneration',
+            async: false,
+            data: {
+                pCrossing: $('#pCrossing').val(),
+                pMutation: $('#pMutation').val(),
+                numberOfPopulation: $('#numberOfPopulation').val()
+            },
+            success: function (data) {
+                updateResultTable(data.listOfAverageFitnessFunction);
+                updateTableAndChart(data);
+            }
+        });
+
     };
 
     $('#startGeneration').on('click', function () {
